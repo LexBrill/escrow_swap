@@ -48,7 +48,17 @@ impl Processor {
 
         let temp_token_account = next_account_info(account_info_iter)?;
 
-        // CHECK FOR IF THE TOKEN IS USDC
+        // Get token data from the temp_token_account
+        let temp_token_account_info =
+            TokenAccount::unpack(&temp_token_account.data.borrow())?;
+
+        let accepted_token = Pubkey::new(("abcd1234").as_bytes());
+
+        // Match the mint spl_token Pubkey to ensure we accept the type
+        match temp_token_account_info.mint {
+            accepted_token => msg!("Got <accepted_token>"),
+            _ => return Err(EscrowError::WrongInput.into()),
+        };
 
         let token_to_receive_account = next_account_info(account_info_iter)?;
         if *token_to_receive_account.owner != spl_token::id() {
@@ -130,6 +140,11 @@ impl Processor {
         let escrow_account = next_account_info(account_info_iter)?;
 
         let escrow_info = Escrow::unpack(&escrow_account.data.borrow())?;
+
+        // Check if the person calling the claim is the same as the person who deposited
+        if escrow_info.depositor != *taker.key {
+            return Err(EscrowError::NotDepositor.into());
+        }
 
         if escrow_info.temp_token_account_pubkey != *pdas_temp_token_account.key {
             return Err(ProgramError::InvalidAccountData);

@@ -13,6 +13,10 @@ pub enum EscrowError {
     ExpectedAmountMismatch,
     #[error("Amount Overflow")]
     AmountOverflow,
+    #[error("SPL Input Not Accepted")]
+    WrongInput,
+    #[error("Not the same person who deposited")]
+    NotDepositor,
 }
 
 impl From<EscrowError> for ProgramError {

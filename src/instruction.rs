@@ -15,6 +15,7 @@ pub enum EscrowInstruction {
     /// 1. `[writable]` Temporary token account that should be created prior to this instruction and owned by the initializer
     /// 2. `[]` The initializer's token account for the token they will receive should the trade go through
     /// 3. `[writable]` The escrow account, it will hold all necessary info about the trade.
+    /// 4. `[writable]` Token account owned by the program to send arb token to claimer
     /// 4. `[]` The rent sysvar
     /// 5. `[]` The token program
     InitEscrow {
