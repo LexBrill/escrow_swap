@@ -11,6 +11,7 @@ pub struct Escrow {
     pub initializer_pubkey: Pubkey,
     pub temp_token_account_pubkey: Pubkey,
     pub initializer_token_to_receive_account_pubkey: Pubkey,
+    pub depositor: Pubkey,
     pub expected_amount: u64,
 }
 
@@ -31,8 +32,9 @@ impl Pack for Escrow {
             initializer_pubkey,
             temp_token_account_pubkey,
             initializer_token_to_receive_account_pubkey,
+            depositor,
             expected_amount,
-        ) = array_refs![src, 1, 32, 32, 32, 8];
+        ) = array_refs![src, 1, 32, 32, 32, 32, 8];
         let is_initialized = match is_initialized {
             [0] => false,
             [1] => true,
@@ -44,6 +46,7 @@ impl Pack for Escrow {
             initializer_pubkey: Pubkey::new_from_array(*initializer_pubkey),
             temp_token_account_pubkey: Pubkey::new_from_array(*temp_token_account_pubkey),
             initializer_token_to_receive_account_pubkey: Pubkey::new_from_array(*initializer_token_to_receive_account_pubkey),
+            depositor: Pubkey::new_from_array(*depositor),
             expected_amount: u64::from_le_bytes(*expected_amount),
         })
     }
@@ -54,14 +57,16 @@ impl Pack for Escrow {
             initializer_pubkey_dst,
             temp_token_account_pubkey_dst,
             initializer_token_to_receive_account_pubkey_dst,
+            depositor_dst,
             expected_amount_dst,
-        ) = mut_array_refs![dst, 1, 32, 32, 32, 8];
+        ) = mut_array_refs![dst, 1, 32, 32, 32, 32, 8];
 
         let Escrow {
             is_initialized,
             initializer_pubkey,
             temp_token_account_pubkey,
             initializer_token_to_receive_account_pubkey,
+            depositor,
             expected_amount,
         } = self;
 
@@ -69,6 +74,7 @@ impl Pack for Escrow {
         initializer_pubkey_dst.copy_from_slice(initializer_pubkey.as_ref());
         temp_token_account_pubkey_dst.copy_from_slice(temp_token_account_pubkey.as_ref());
         initializer_token_to_receive_account_pubkey_dst.copy_from_slice(initializer_token_to_receive_account_pubkey.as_ref());
+        depositor_dst.copy_from_slice(depositor.as_ref());
         *expected_amount_dst = expected_amount.to_le_bytes();
     }
 }

@@ -1,0 +1,23 @@
+{
+  "name": "sol-template",
+  "version": "1.0.0",
+  "description": "1. Install Rust from https://rustup.rs/ 2. Install Solana v1.6.2 or later from https://docs.solana.com/cli/install-solana-cli-tools#use-solanas-install-tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LexBrill/sol-template.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LexBrill/sol-template/issues"
+  },
+  "homepage": "https://github.com/LexBrill/sol-template#readme",
+  "dependencies": {
+    "@solana/spl-token": "^0.1.8",
+    "@solana/web3.js": "^1.28.0"
+  }
+}
