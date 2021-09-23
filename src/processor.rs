@@ -189,7 +189,7 @@ impl Processor {
             takers_token_to_receive_account.key,
             &pda,
             &[&pda],
-            pdas_temp_token_account_info.amount,
+            amount_taken,
         )?;
         msg!("Calling the token program to transfer tokens to the taker...");
         invoke_signed(
@@ -203,32 +203,34 @@ impl Processor {
             &[&[&b"escrow"[..], &[bump_seed]]],
         )?;
 
-        let close_pdas_temp_acc_ix = spl_token::instruction::close_account(
-            token_program.key,
-            pdas_temp_token_account.key,
-            initializers_main_account.key,
-            &pda,
-            &[&pda],
-        )?;
-        msg!("Calling the token program to close pda's temp account...");
-        invoke_signed(
-            &close_pdas_temp_acc_ix,
-            &[
-                pdas_temp_token_account.clone(),
-                initializers_main_account.clone(),
-                pda_account.clone(),
-                token_program.clone(),
-            ],
-            &[&[&b"escrow"[..], &[bump_seed]]],
-        )?;
+        if pdas_temp_token_account_info.amount == 0 {
+            let close_pdas_temp_acc_ix = spl_token::instruction::close_account(
+                token_program.key,
+                pdas_temp_token_account.key,
+                initializers_main_account.key,
+                &pda,
+                &[&pda],
+            )?;
+            msg!("Calling the token program to close pda's temp account...");
+            invoke_signed(
+                &close_pdas_temp_acc_ix,
+                &[
+                    pdas_temp_token_account.clone(),
+                    initializers_main_account.clone(),
+                    pda_account.clone(),
+                    token_program.clone(),
+                ],
+                &[&[&b"escrow"[..], &[bump_seed]]],
+            )?;
 
-        msg!("Closing the escrow account...");
-        **initializers_main_account.lamports.borrow_mut() = initializers_main_account.lamports()
-        .checked_add(escrow_account.lamports())
-        .ok_or(EscrowError::AmountOverflow)?;
-        **escrow_account.lamports.borrow_mut() = 0;
-        *escrow_account.data.borrow_mut() = &mut [];
-
+            msg!("Closing the escrow account...");
+            **initializers_main_account.lamports.borrow_mut() = initializers_main_account.lamports()
+            .checked_add(escrow_account.lamports())
+            .ok_or(EscrowError::AmountOverflow)?;
+            **escrow_account.lamports.borrow_mut() = 0;
+            *escrow_account.data.borrow_mut() = &mut [];
+        }
+        
         Ok(())
     }
 }
