@@ -82,7 +82,7 @@ impl Processor {
         escrow_info.temp_token_account_pubkey = *temp_token_account.key;
         escrow_info.initializer_token_to_receive_account_pubkey = *token_to_receive_account.key;
         escrow_info.depositor = *initializer.key;
-        escrow_info.expected_amount = amount;
+        escrow_info.remaining_amount = amount;
 
         Escrow::pack(escrow_info, &mut escrow_account.data.borrow_mut())?;
         let (pda, _bump_seed) = Pubkey::find_program_address(&[b"escrow"], program_id);
@@ -112,7 +112,7 @@ impl Processor {
     // inside: impl Processor {}
     fn process_exchange(
         accounts: &[AccountInfo],
-        amount_expected_by_taker: u64,
+        amount_taken: u64,
         program_id: &Pubkey,
     ) -> ProgramResult {
         let account_info_iter = &mut accounts.iter();
@@ -131,9 +131,9 @@ impl Processor {
             TokenAccount::unpack(&pdas_temp_token_account.data.borrow())?;
         let (pda, bump_seed) = Pubkey::find_program_address(&[b"escrow"], program_id);
 
-        if amount_expected_by_taker != pdas_temp_token_account_info.amount {
+        if amount_taken > pdas_temp_token_account_info.amount {
             // Change this to be able to not have to do all at once
-            return Err(EscrowError::ExpectedAmountMismatch.into());
+            return Err(EscrowError::NotEnoughRemaining.into());
         }
 
         let initializers_main_account = next_account_info(account_info_iter)?;
@@ -169,7 +169,7 @@ impl Processor {
             initializers_token_to_receive_account.key,
             taker.key,
             &[&taker.key],
-            escrow_info.expected_amount,
+            escrow_info.remaining_amount,
         )?;
         msg!("Calling the token program to transfer tokens to the escrow's initializer...");
         invoke(

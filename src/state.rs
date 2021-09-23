@@ -12,7 +12,7 @@ pub struct Escrow {
     pub temp_token_account_pubkey: Pubkey,
     pub initializer_token_to_receive_account_pubkey: Pubkey,
     pub depositor: Pubkey,
-    pub expected_amount: u64,
+    pub remaining_amount: u64,
 }
 
 impl Sealed for Escrow {}
@@ -33,7 +33,7 @@ impl Pack for Escrow {
             temp_token_account_pubkey,
             initializer_token_to_receive_account_pubkey,
             depositor,
-            expected_amount,
+            remaining_amount,
         ) = array_refs![src, 1, 32, 32, 32, 32, 8];
         let is_initialized = match is_initialized {
             [0] => false,
@@ -47,7 +47,7 @@ impl Pack for Escrow {
             temp_token_account_pubkey: Pubkey::new_from_array(*temp_token_account_pubkey),
             initializer_token_to_receive_account_pubkey: Pubkey::new_from_array(*initializer_token_to_receive_account_pubkey),
             depositor: Pubkey::new_from_array(*depositor),
-            expected_amount: u64::from_le_bytes(*expected_amount),
+            remaining_amount: u64::from_le_bytes(*remaining_amount),
         })
     }
  fn pack_into_slice(&self, dst: &mut [u8]) {
@@ -58,7 +58,7 @@ impl Pack for Escrow {
             temp_token_account_pubkey_dst,
             initializer_token_to_receive_account_pubkey_dst,
             depositor_dst,
-            expected_amount_dst,
+            remaining_amount_dst,
         ) = mut_array_refs![dst, 1, 32, 32, 32, 32, 8];
 
         let Escrow {
@@ -67,7 +67,7 @@ impl Pack for Escrow {
             temp_token_account_pubkey,
             initializer_token_to_receive_account_pubkey,
             depositor,
-            expected_amount,
+            remaining_amount,
         } = self;
 
         is_initialized_dst[0] = *is_initialized as u8;
@@ -75,6 +75,6 @@ impl Pack for Escrow {
         temp_token_account_pubkey_dst.copy_from_slice(temp_token_account_pubkey.as_ref());
         initializer_token_to_receive_account_pubkey_dst.copy_from_slice(initializer_token_to_receive_account_pubkey.as_ref());
         depositor_dst.copy_from_slice(depositor.as_ref());
-        *expected_amount_dst = expected_amount.to_le_bytes();
+        *remaining_amount_dst = remaining_amount.to_le_bytes();
     }
 }

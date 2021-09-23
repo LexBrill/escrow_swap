@@ -9,8 +9,8 @@ pub enum EscrowError {
     /// Invalid instruction
     #[error("Invalid Instruction")]
     InvalidInstruction,
-    #[error("Mismatch")]
-    ExpectedAmountMismatch,
+    #[error("Not Enough Remaining")]
+    NotEnoughRemaining,
     #[error("Amount Overflow")]
     AmountOverflow,
     #[error("SPL Input Not Accepted")]
